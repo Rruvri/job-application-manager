@@ -74,7 +74,7 @@ from PyQt6.QtWidgets import (QApplication, QLabel,
                              QPushButton, QTabWidget,
                              QTextEdit)
 from PyQt6.QtCore import (QDate, QDateTime)
-from applications import Application
+from applications import Application, ApplicationsMaster, applications
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -133,12 +133,13 @@ class Appl(QWidget):
         entry_layout.addLayout(entry_form)
 
 
-            #entry buttons
+                #entry buttons
         save_entry = QPushButton("Save", parent=self)
         save_entry.clicked.connect(self.save_appl)
         entry_layout.addWidget(save_entry)
         
         clear_entry = QPushButton("Clear", parent=self)
+        clear_entry.clicked.connect(self.clear_entry_form)
         entry_layout.addWidget(clear_entry)
 
 
@@ -147,17 +148,64 @@ class Appl(QWidget):
 
             #view list
         self.application_list = QListWidget(parent=self)
+        self.application_list.itemSelectionChanged.connect(self.select_appl)
+        self.populate_applications_list()
+        #populate list here
+        
+
         applications_layout.addWidget(self.application_list)
+
+
+        
+    
     
     def save_appl(self):
         title = self.job_title.text().title()
-        company = self.job_company.text.title()
-        deadline = self.job_deadline.date() 
+        company = self.job_company.text().title()
+        deadline = self.job_deadline.date().toPyDate 
         cat = self.job_cat.currentText().title()
         subcat = self.job_subcat.currentText().title()
 
         new_job = Application(title, company, deadline, cat, subcat)
-        self.application_list.addItem()
+        
+        
+        applications.add_application(new_job)
+        #self.application_list.addItems(applications.add_application(new_job))
+
+        #self.clear_entry_form()
+        self.populate_applications_list()
+    
+    def select_appl(self):
+        
+        if self.application_list.currentItem().text() == "<Select for new entry>":
+            self.clear_entry_form()
+        else:
+            selected = applications.active_applications[(self.application_list.currentRow()-1)]
+            
+            self.job_title.setText(selected.job_title)
+            self.job_company.setText(selected.company)
+            self.job_deadline.setDate(QDate(selected.deadline.year, selected.deadline.month, selected.deadline.day))
+            self.job_cat.setCurrentText(selected.cat)
+            
+            self.job_subcat.setCurrentText(selected.subcat)
+    
+    def clear_entry_form(self):
+        self.job_title.clear()
+        self.job_company.clear()
+        #self.job_deadline
+        self.job_cat.clearEditText()
+        self.job_subcat.clearEditText()
+    
+    def populate_applications_list(self):
+        self.application_list.clear()
+        self.application_list.addItem("<Select for new entry>")
+        self.application_list.addItems(applications.return_appls())
+        self.clear_entry_form()
+
+
+    
+
+        
 
 
 
@@ -179,7 +227,7 @@ class Covers(QWidget):
         cover_entry = QTextEdit(parent=self)
         covers_layout.addWidget(cover_entry)
 
-if __name__ == "__main__":
+def launch_gui():
     app = QApplication(sys.argv)
     window = MainWindow()
     

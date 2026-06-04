@@ -6,9 +6,9 @@ import gui
 
 
 
-def main():
-    print("Hello from job-application-manager!")
 
+def main():
+    gui.launch_gui()
 
 if __name__ == "__main__":
     main()
