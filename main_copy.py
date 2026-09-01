@@ -1,7 +1,7 @@
 
 #import saves
 import applications
-import gui
+import gui_copy
 
 
 
@@ -9,8 +9,8 @@ import gui
 
 
 def main():
-    
-    gui.launch_gui()
+
+    gui_copy.launch_gui()
 
 
     
